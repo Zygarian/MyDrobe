@@ -16,12 +16,14 @@ h1 { margin: 0; font-size: 28px; font-weight: 800; }
 .card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 16px; margin-bottom: 14px; position: relative; }
 .card-star { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; color: #CCC; }
 .card-star.active { color: #FFD700; }
+.card-edit { position: absolute; top: 16px; right: 44px; font-size: 14px; color: #999; cursor: pointer; }
 .add-btn { position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 50; }
 .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
 .btn-primary { background: #111; color: #FFF; }
 .btn-secondary { background: #F4F4F4; color: #111; }
 footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; }
+.camera-trigger { width: 100%; padding: 20px; border: 2px dashed #CCC; border-radius: 12px; text-align: center; cursor: pointer; background: #FFF; font-size: 14px; color: #999; margin-bottom: 16px; }
 </style>
 </head>
 <body>
@@ -40,8 +42,9 @@ footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border
 <div class="add-screen" id="addScreen" style="display:none">
     <h2 style="margin-top:0;padding:20px;">Add Outfit</h2>
     <div style="padding:0 20px;">
-        <div class="camera-trigger" style="width:100%;padding:20px;border:2px dashed #CCC;border-radius:12px;text-align:center;cursor:pointer;background:#FFF;font-size:14px;color:#999;margin-bottom:16px;" id="fullBodyBox">
-            <span id="fullBodyLabel">📷 Tap to take full body photo</span>
+        <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Full Body Shot</label>
+        <div class="camera-trigger" id="fullBodyBox">
+            <span id="fullBodyLabel">📷 Add photo</span>
             <input type="file" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0;" onchange="handleFullBody(this)">
         </div>
         <div id="fullBodyPreview"></div>
@@ -77,8 +80,8 @@ function addItemRow() {
     let div = document.createElement('div');
     div.style.marginBottom = '16px';
     div.innerHTML = `
-        <div class="camera-trigger" style="width:100%;padding:10px 20px;border:2px dashed #CCC;border-radius:12px;text-align:center;cursor:pointer;background:#FFF;font-size:14px;color:#999;margin-bottom:10px;" id="itemBox_${idx}">
-            <span id="itemLabel_${idx}">📷 Take photo</span>
+        <div class="camera-trigger" id="itemBox_${idx}">
+            <span id="itemLabel_${idx}">📷 Add photo</span>
             <input type="file" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0;" onchange="handleItemFile(this, ${idx})">
         </div>
         <select onchange="tempData.items[${idx}].type = this.value" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;margin-bottom:8px;">
@@ -94,12 +97,11 @@ function handleItemFile(input, idx) {
         let reader = new FileReader();
         reader.onload = function(e) {
             tempData.items[idx].img = e.target.result;
-            let boxId = 'itemBox_' + idx;
-            let labelId = 'itemLabel_' + idx;
-            document.getElementById(labelId).style.display = 'none';
-            document.getElementById(boxId).style.backgroundImage = `url(${e.target.result})`;
-            document.getElementById(boxId).style.backgroundSize = 'cover';
-            document.getElementById(boxId).style.borderStyle = 'solid';
+            document.getElementById('itemLabel_' + idx).style.display = 'none';
+            document.getElementById('itemBox_' + idx).style.backgroundImage = `url(${e.target.result})`;
+            document.getElementById('itemBox_' + idx).style.backgroundSize = 'cover';
+            document.getElementById('itemBox_' + idx).style.border = 'none';
+            document.getElementById('itemBox_' + idx).style.height = '100px';
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -161,6 +163,7 @@ function render() {
             fullBodyHtml = `<img src="${o.fullBody}" style="width:100%;height:auto;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:10px;">`;
         }
         let cardHtml = `<div class="card">
+            <span class="card-edit" onclick="openAdd()">Open</span>
             <span class="card-star ${o.fav ? 'active' : ''}" onclick="toggleFav(${i})">★</span>
             <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Outfit ${i+1}</div>
             ${fullBodyHtml}
