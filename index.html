@@ -9,113 +9,160 @@
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #FAFAFA; color: #111; }
         header { padding: 24px 20px 16px; text-align: center; border-bottom: 1px solid #EAEAEA; }
         h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .tabs { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid #EAEAEA; z-index: 10; padding: 8px 0; }
-        .tab { flex: 1; background: none; border: none; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; padding: 8px; }
-        .tab.active { color: #111; }
-        .view { display: none; padding: 16px 20px; padding-bottom: 90px; }
+        .tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid #EAEAEA; z-index: 10; padding: 10px 0; }
+        .tab { flex: 1; background: none; border: none; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; padding: 8px; border-radius: 12px; margin: 0 10px; }
+        .tab.active { color: #111; background: #F4F4F4; }
+        .view { display: none; padding: 16px 20px; min-height: 70vh; }
         .view.active { display: block; }
-        .card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 20px; margin-bottom: 14px; position: relative; }
+        .outfit-card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 16px; margin-bottom: 14px; position: relative; }
         .card-star { position: absolute; top: 16px; right: 16px; font-size: 22px; cursor: pointer; color: #CCC; }
         .card-star.active { color: #FFD700; }
-        .card-name { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-        .card-meta { font-size: 13px; color: #666; margin-bottom: 12px; }
-        .card-imgs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-        .card-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
-        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .btn-primary { background: #111; color: #FFF; }
-        .btn-danger { background: #F4F4F4; color: #111; }
-        .add-btn { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 20; }
+        .item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #F4F4F4; }
+        .item-thumb { width: 50px; height: 50px; background: #F4F4F4; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #999; flex-shrink: 0; overflow: hidden; }
         .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 100; padding: 20px; overflow-y: auto; display: none; }
         .add-screen.active { display: block; }
-        .add-screen h2 { margin-top: 0; font-size: 24px; }
-        .upload-btn { display: inline-block; padding: 12px 20px; background: #F4F4F4; border: 2px dashed #CCC; border-radius: 12px; font-size: 14px; color: #666; cursor: pointer; margin-bottom: 16px; }
-        .preview-grid { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
-        .preview-img { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; position: relative; }
-        .preview-wrap { position: relative; display: inline-block; }
-        .preview-wrap .x { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: #111; color: #FFF; border: none; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        footer { text-align: center; font-size: 11px; color: #999; padding: 20px; border-top: 1px solid #EAEAEA; margin-top: 20px; }
+        .upload-box { width: 100%; height: 140px; border: 2px dashed #CCC; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; cursor: pointer; background: #FFF; }
+        .upload-box.has-img { border: none; }
+        .upload-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 16px; }
+        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+        .btn-primary { background: #111; color: #FFF; }
+        .btn-secondary { background: #F4F4F4; color: #111; }
+        footer { text-align: center; font-size: 10px; color: #999; padding: 20px; border-top: 1px solid #EAEAEA; margin-top: 20px; }
     </style>
 </head>
 <body>
     <header><h1>MyDrobe</h1></header>
-
     <div id="outfits" class="view active"></div>
     <div id="favs" class="view"></div>
-
-    <div class="add-btn" onclick="showAdd()">+</div>
+    <footer>MyDrobe © 2026 All Rights Reserved | v0.2</footer>
     <div class="tabs">
         <button class="tab active" onclick="showTab('outfits')">Outfits</button>
         <button class="tab" onclick="showTab('favs')">My Favourites</button>
     </div>
 
     <div class="add-screen" id="addScreen">
-        <h2>Add New Outfit</h2>
-        <p style="color:#666;font-size:14px;margin-bottom:20px;">Add photos of your clothes and an optional name</p>
+        <h2 style="margin-top:0;">Add Outfit</h2>
+        <p style="color:#666;font-size:14px;margin-bottom:20px;">Add your clothes and a full body shot</p>
 
-        <div class="upload-btn" id="photoBtn">📷 Take Photo</div>
-        <div id="previewArea" class="preview-grid"></div>
+        <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Full Body Shot / 3D Mannequin</label>
+        <div class="upload-box" onclick="triggerCamera(this, 'fullbody')"><div style="font-size:14px;color:#999;">📷 Take Photo</div></div>
 
-        <input type="text" id="nameInput" placeholder="Outfit name (optional)" style="width:100%;padding:14px;border:1px solid #EAEAEA;border-radius:12px;font-size:16px;background:#FFF;margin-bottom:16px;">
-
-        <button class="btn btn-primary" onclick="doSave()">Save Outfit</button>
-        <button class="btn btn-danger" style="margin-top:10px;" onclick="hideAdd()">Cancel</button>
+        <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Items</label>
+        <div id="itemsContainer"></div>
+        
+        <button class="btn btn-secondary" onclick="addItemRow()">+ Add Item</button>
+        <button class="btn btn-primary" onclick="saveOutfit()">Save Outfit</button>
+        <button class="btn btn-secondary" onclick="closeAdd()">Cancel</button>
     </div>
 
-    <footer>MyDrobe © 2024 All Rights Reserved | v0.2</footer>
-
     <script>
-        let data = JSON.parse(localStorage.getItem('md_v02') || '[]');
-        let pics = [];
+        let outfits = JSON.parse(localStorage.getItem('md_v02') || '[]');
+        let tempFullBody = null;
+        let tempItems = [];
 
-        document.getElementById('photoBtn').onclick = function() {
+        function triggerCamera(el, type) {
             let inp = document.createElement('input');
             inp.type = 'file'; inp.accept = 'image/*'; inp.capture = 'environment';
             inp.onchange = function() {
-                if (this.files[0]) {
+                if(this.files[0]) {
                     let r = new FileReader();
-                    r.onload = function(e) { pics.push(e.target.result); drawPreviews(); };
+                    r.onload = function(e) {
+                        el.classList.add('has-img');
+                        el.innerHTML = `<img src="${e.target.result}">`;
+                        if(type === 'fullbody') tempFullBody = e.target.result;
+                        if(type.startsWith('item_')) {
+                            let idx = parseInt(type.split('_')[1]);
+                            tempItems[idx].img = e.target.result;
+                        }
+                    };
                     r.readAsDataURL(this.files[0]);
                 }
             };
             inp.click();
-        };
+        }
 
-        function drawPreviews() {
-            let a = document.getElementById('previewArea');
-            a.innerHTML = '';
-            pics.forEach((p, i) => {
-                a.innerHTML += `<div class="preview-wrap"><img src="${p}" class="preview-img"><button class="x" onclick="rmPic(${i})">×</button></div>`;
+        function addItemRow() {
+            let idx = tempItems.length;
+            tempItems.push({ type: 'Shirt', name: '', img: null });
+            let div = document.createElement('div');
+            div.className = 'item-row';
+            div.innerHTML = `
+                <div class="upload-box" style="width:60px;height:60px;flex-shrink:0;margin:0;" onclick="triggerCamera(this, 'item_${idx}')"><div style="font-size:14px;color:#999;">📷</div></div>
+                <div style="flex:1;">
+                    <select style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;margin-bottom:8px;" onchange="tempItems[${idx}].type = this.value">
+                        <option>Shirt</option><option>Hoodie</option><option>Pants</option><option>Shoes</option><option>Scarf</option><option>Hat</option>
+                    </select>
+                    <input type="text" placeholder="Item name (optional)" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;" onchange="tempItems[${idx}].name = this.value">
+                </div>
+                <button onclick="removeItemRow(${idx})" style="background:none;border:none;font-size:20px;color:#999;cursor:pointer;padding:0 4px;">×</button>
+            `;
+            document.getElementById('itemsContainer').appendChild(div);
+        }
+
+        function removeItemRow(idx) {
+            tempItems.splice(idx, 1);
+            rebuildItems();
+        }
+
+        function rebuildItems() {
+            let container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+            tempItems.forEach((item, i) => {
+                let div = document.createElement('div');
+                div.className = 'item-row';
+                div.innerHTML = `
+                    <div class="upload-box" style="width:60px;height:60px;flex-shrink:0;margin:0;" onclick="triggerCamera(this, 'item_${i}')" ${item.img ? `style="border:none;width:60px;height:60px;flex-shrink:0;margin:0;"` : ''}>${item.img ? `<img src="${item.img}" style="width:60px;height:60px;border-radius:10px;">` : '<div style="font-size:14px;color:#999;">📷</div>'}</div>
+                    <div style="flex:1;">
+                        <select style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;margin-bottom:8px;" onchange="tempItems[${i}].type = this.value">
+                            <option ${item.type==='Shirt'?'selected':''}>Shirt</option><option ${item.type==='Hoodie'?'selected':''}>Hoodie</option><option ${item.type==='Pants'?'selected':''}>Pants</option><option ${item.type==='Shoes'?'selected':''}>Shoes</option><option ${item.type==='Scarf'?'selected':''}>Scarf</option><option ${item.type==='Hat'?'selected':''}>Hat</option>
+                        </select>
+                        <input type="text" placeholder="Item name (optional)" value="${item.name}" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;" onchange="tempItems[${i}].name = this.value">
+                    </div>
+                    <button onclick="removeItemRow(${i})" style="background:none;border:none;font-size:20px;color:#999;cursor:pointer;padding:0 4px;">×</button>
+                `;
+                container.appendChild(div);
             });
         }
 
-        function rmPic(i) { pics.splice(i, 1); drawPreviews(); }
-
-        function showAdd() { document.getElementById('addScreen').classList.add('active'); pics = []; document.getElementById('nameInput').value = ''; drawPreviews(); }
-        function hideAdd() { document.getElementById('addScreen').classList.remove('active'); }
-
-        function doSave() {
-            let name = document.getElementById('nameInput').value.trim() || 'New Outfit';
-            data.push({ name, imgs: [...pics], fav: false });
-            localStorage.setItem('md_v02', JSON.stringify(data));
-            hideAdd(); render();
+        function openAdd() {
+            tempFullBody = null;
+            tempItems = [];
+            document.getElementById('itemsContainer').innerHTML = '';
+            document.getElementById('addScreen').classList.add('active');
         }
 
-        function rm(i) {
-            data.splice(i, 1);
-            localStorage.setItem('md_v02', JSON.stringify(data));
+        function closeAdd() {
+            document.getElementById('addScreen').classList.remove('active');
+        }
+
+        function saveOutfit() {
+            outfits.push({
+                fullBody: tempFullBody,
+                items: tempItems,
+                fav: false,
+                date: new Date().toISOString()
+            });
+            localStorage.setItem('md_v02', JSON.stringify(outfits));
+            closeAdd();
             render();
         }
 
         function toggleFav(i) {
-            data[i].fav = !data[i].fav;
-            localStorage.setItem('md_v02', JSON.stringify(data));
+            outfits[i].fav = !outfits[i].fav;
+            localStorage.setItem('md_v02', JSON.stringify(outfits));
+            render();
+        }
+
+        function rm(i) {
+            outfits.splice(i, 1);
+            localStorage.setItem('md_v02', JSON.stringify(outfits));
             render();
         }
 
         function showTab(t) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-            if (t === 'outfits') {
+            if(t === 'outfits') {
                 document.getElementById('outfits').classList.add('active');
                 document.querySelector('.tab:nth-child(1)').classList.add('active');
             } else {
@@ -127,32 +174,47 @@
         function render() {
             let oDiv = document.getElementById('outfits');
             let fDiv = document.getElementById('favs');
-            oDiv.innerHTML = ''; fDiv.innerHTML = '';
+            oDiv.innerHTML = '';
+            fDiv.innerHTML = '';
 
-            if (data.length === 0) {
-                oDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px 20px;">No outfits yet.<br>Tap <b>+</b> to add your first one!</div>';
-                fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px 20px;">No favourites yet.<br>Tap <b>★</b> to add one!</div>';
+            if(outfits.length === 0) {
+                oDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No outfits yet.<br>Tap <b>+</b> to add your first one!</div>';
+                fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.<br>Tap the <b>★</b> to add one!</div>';
                 return;
             }
 
-            data.forEach((o, i) => {
-                let imgsHtml = '';
-                if (o.imgs && o.imgs.length > 0) {
-                    imgsHtml = '<div class="card-imgs">';
-                    o.imgs.forEach(img => { imgsHtml += `<img src="${img}" class="card-img">`; });
-                    imgsHtml += '</div>';
+            outfits.forEach((o, i) => {
+                let itemsHtml = '';
+                if(o.items && o.items.length > 0) {
+                    o.items.forEach(item => {
+                        itemsHtml += `<div class="item-row" style="border:none;padding-bottom:0;">
+                            <div class="item-thumb">${item.img ? `<img src="${item.img}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">` : '📷'}</div>
+                            <div style="flex:1;"><div style="font-size:14px;font-weight:600;">${item.type}</div><div style="font-size:12px;color:#666;">${item.name || 'Unnamed'}</div></div>
+                        </div>`;
+                    });
                 }
 
-                let card = `<div class="card">
+                let fullBodyHtml = '';
+                if(o.fullBody) {
+                    fullBodyHtml = `<img src="${o.fullBody}" style="width:80px;height:120px;object-fit:cover;border-radius:12px;float:right;margin:0 0 10px 10px;">`;
+                }
+
+                let cardHtml = `<div class="outfit-card">
                     <span class="card-star ${o.fav ? 'active' : ''}" onclick="toggleFav(${i})">★</span>
-                    <div class="card-name">${o.name}</div>
-                    <div class="card-meta">${o.imgs ? o.imgs.length : 0} photo${o.imgs && o.imgs.length > 1 ? 's' : ''}</div>
-                    ${imgsHtml}
-                    <button class="btn btn-danger" onclick="rm(${i})">Remove</button>
+                    <div style="font-size:16px;font-weight:600;margin-bottom:4px;">Outfit ${i+1}</div>
+                    <div style="font-size:12px;color:#999;margin-bottom:10px;">${new Date(o.date).toLocaleDateString()} | ${o.items.length} items</div>
+                    ${fullBodyHtml}
+                    ${itemsHtml}
+                    <button class="btn btn-secondary" onclick="rm(${i})" style="margin-top:10px;">Remove Outfit</button>
                 </div>`;
-                oDiv.innerHTML += card;
-                if (o.fav) fDiv.innerHTML += card;
+
+                oDiv.innerHTML += cardHtml;
+                if(o.fav) fDiv.innerHTML += cardHtml;
             });
+
+            if(fDiv.innerHTML === '') {
+                fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.<br>Tap the <b>★</b> to add one!</div>';
+            }
         }
 
         render();
