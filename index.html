@@ -16,8 +16,7 @@ h1 { margin: 0; font-size: 28px; font-weight: 800; }
 .card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 16px; margin-bottom: 14px; position: relative; }
 .card-star { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; color: #CCC; }
 .card-star.active { color: #FFD700; }
-.card-edit { position: absolute; top: 16px; right: 44px; font-size: 14px; color: #999; cursor: pointer; }
-.add-btn { position: fixed; bottom: 130px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 50; }
+.add-btn { position: fixed; bottom: 100px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 50; }
 .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
 .btn-primary { background: #111; color: #FFF; }
@@ -36,6 +35,7 @@ footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border
     <button class="tab active" onclick="switchTab('outfits')">Outfits</button>
     <button class="tab" onclick="switchTab('favourites')">My Favourites</button>
 </div>
+<div class="add-btn" onclick="openAdd()">+</div>
 
 <div class="add-screen" id="addScreen" style="display:none">
     <h2 style="margin-top:0;padding:20px;">Add Outfit</h2>
@@ -161,7 +161,6 @@ function render() {
             fullBodyHtml = `<img src="${o.fullBody}" style="width:100%;height:auto;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:10px;">`;
         }
         let cardHtml = `<div class="card">
-            <span class="card-edit" onclick="openEdit(${i})">Open</span>
             <span class="card-star ${o.fav ? 'active' : ''}" onclick="toggleFav(${i})">★</span>
             <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Outfit ${i+1}</div>
             ${fullBodyHtml}
@@ -172,15 +171,6 @@ function render() {
         if(o.fav) fDiv.innerHTML += cardHtml;
     });
     if(fDiv.innerHTML === '') fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.</div>';
-}
-
-function openEdit(i) {
-    openAdd();
-    let o = outfits[i];
-    if(o.fullBody) {
-        document.getElementById('fullBodyLabel').style.display = 'none';
-        document.getElementById('fullBodyPreview').innerHTML = `<img src="${o.fullBody}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;">`;
-    }
 }
 
 render();
