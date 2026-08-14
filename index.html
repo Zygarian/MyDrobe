@@ -1,178 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyDrobe v0.2</title>
-    <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #FAFAFA; color: #111; padding-bottom: 140px; }
-        header { padding: 24px 20px 16px; text-align: center; border-bottom: 1px solid #EAEAEA; }
-        h1 { margin: 0; font-size: 28px; font-weight: 800; }
-        .view { display: none; padding: 16px 20px; }
-        .view.active { display: block; }
-        .card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 16px; margin-bottom: 14px; position: relative; }
-        .card-star { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; color: #CCC; }
-        .card-star.active { color: #FFD700; }
-        .card-details { display: none; margin-top: 12px; border-top: 1px solid #F0F0F0; padding-top: 12px; }
-        .card.expanded .card-details { display: block; }
-        .add-btn { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 50; }
-        .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 100; padding: 20px; overflow-y: auto; display: none; }
-        .add-screen.active { display: block; }
-        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-        .btn-primary { background: #111; color: #FFF; }
-        .btn-secondary { background: #F4F4F4; color: #111; }
-        .tabs { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid #EAEAEA; z-index: 20; padding: 10px 0; }
-        .tab { flex: 1; text-align: center; background: none; border: none; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; }
-        .tab.active { color: #111; }
-        footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; margin-top: 20px; }
-        .camera-trigger { width: 100%; padding: 20px; border: 2px dashed #CCC; border-radius: 12px; text-align: center; cursor: pointer; background: #FFF; font-size: 14px; color: #999; margin-bottom: 16px; }
-        .camera-trigger input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-        .camera-label { display: inline-block; padding: 10px 20px; border: 2px dashed #CCC; border-radius: 12px; cursor: pointer; background: #FFF; font-size: 14px; color: #999; }
-        .camera-label input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-        .upload-box { width: 50px; height: 50px; background: #F4F4F4; border-radius: 10px; border: 2px dashed #CCC; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
-        .upload-box input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MyDrobe v0.2</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #FAFAFA; color: #111; }
+header { position: fixed; top: 0; left: 0; right: 0; background: #FAFAFA; padding: 24px 20px 16px; text-align: center; border-bottom: 1px solid #EAEAEA; z-index: 50; }
+h1 { margin: 0; font-size: 28px; font-weight: 800; }
+.content { padding: 120px 20px 140px; overflow-y: auto; height: 100vh; -webkit-overflow-scrolling: touch; }
+.tabs { position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid #EAEAEA; display: flex; z-index: 100; padding: 12px 0; }
+.tab { flex: 1; background: none; border: none; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; text-align: center; padding: 8px; }
+.tab.active { color: #111; }
+.card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; padding: 16px; margin-bottom: 14px; position: relative; }
+.card-star { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; color: #CCC; }
+.card-star.active { color: #FFD700; }
+.card-edit { position: absolute; top: 16px; right: 44px; font-size: 14px; color: #999; cursor: pointer; }
+.add-btn { position: fixed; bottom: 130px; right: 20px; width: 56px; height: 56px; background: #111; color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 50; }
+.add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+.btn-primary { background: #111; color: #FFF; }
+.btn-secondary { background: #F4F4F4; color: #111; }
+footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; }
+</style>
 </head>
 <body>
-    <header><h1>MyDrobe</h1></header>
-    <div id="outfits" class="view active"></div>
-    <div id="favs" class="view"></div>
-    <div class="add-btn" onclick="openAdd()">+</div>
+<header><h1>MyDrobe</h1></header>
+<div class="content" id="content">
+    <div id="outfits-view"></div>
+    <div id="favourites-view" style="display:none"></div>
     <footer>MyDrobe © 2026 All Rights Reserved | v0.2</footer>
-    <div class="tabs">
-        <button class="tab active" onclick="showTab('outfits')">Outfits</button>
-        <button class="tab" onclick="showTab('favs')">My Favourites</button>
-    </div>
-    <div class="add-screen" id="addScreen">
-        <h2 style="margin-top:0;">Add Outfit</h2>
-        <p style="color:#666;font-size:14px;margin-bottom:20px;">Add your clothes and a full body shot</p>
+</div>
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('outfits')">Outfits</button>
+    <button class="tab" onclick="switchTab('favourites')">My Favourites</button>
+</div>
 
-        <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Full Body Shot / 3D Mannequin</label>
-        <div class="camera-trigger">
-            <span id="fullBodyLabel">📷 Tap to take photo</span>
-            <input type="file" accept="image/*" onchange="handleFile(this, 'fullbody')">
+<div class="add-screen" id="addScreen" style="display:none">
+    <h2 style="margin-top:0;padding:20px;">Add Outfit</h2>
+    <div style="padding:0 20px;">
+        <div class="camera-trigger" style="width:100%;padding:20px;border:2px dashed #CCC;border-radius:12px;text-align:center;cursor:pointer;background:#FFF;font-size:14px;color:#999;margin-bottom:16px;" id="fullBodyBox">
+            <span id="fullBodyLabel">📷 Tap to take full body photo</span>
+            <input type="file" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0;" onchange="handleFullBody(this)">
         </div>
-        <div id="fullBodyPreview" style="margin-bottom:20px;"></div>
-
+        <div id="fullBodyPreview"></div>
+        
         <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Items</label>
         <div id="itemsContainer"></div>
+        
         <button class="btn btn-secondary" onclick="addItemRow()">+ Add Item</button>
         <button class="btn btn-primary" onclick="saveOutfit()">Save Outfit</button>
         <button class="btn btn-secondary" onclick="closeAdd()">Cancel</button>
     </div>
-    <script>
-        let outfits = JSON.parse(localStorage.getItem('md_v02') || '[]');
-        let tempFullBody = null;
-        let tempItems = [];
+</div>
 
-        function addItemRow() {
-            let idx = tempItems.length;
-            tempItems.push({ type: 'Shirt', name: '', img: null });
-            let div = document.createElement('div');
-            div.style.marginBottom = '16px';
-            div.innerHTML = `
-                <div style="margin-bottom:10px;">
-                    <div class="camera-label" onclick="this.querySelector('input').click()">
-                        <span>📷 Tap to take photo</span>
-                        <input type="file" accept="image/*" onchange="handleItemCamera(this, ${idx})">
-                    </div>
-                    <div style="margin-top:10px;">
-                        <select onchange="tempItems[${idx}].type = this.value" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;">
-                            <option>Shirt</option><option>Hoodie</option><option>Pants</option><option>Shoes</option><option>Scarf</option><option>Hat</option>
-                        </select>
-                        <input type="text" placeholder="Item name (optional)" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;" onchange="tempItems[${idx}].name = this.value">
-                    </div>
-                </div>
-            `;
-            document.getElementById('itemsContainer').appendChild(div);
-        }
+<script>
+let outfits = JSON.parse(localStorage.getItem('md_v02') || '[]');
+let tempData = { fullBody: null, items: [] };
 
-        function handleFile(input, type) {
-            if(input.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    if(type === 'fullbody') {
-                        tempFullBody = e.target.result;
-                        document.getElementById('fullBodyLabel').style.display = 'none';
-                        document.getElementById('fullBodyPreview').innerHTML = `<img src="${tempFullBody}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;">`;
-                    }
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+function handleFullBody(input) {
+    if (input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            tempData.fullBody = e.target.result;
+            document.getElementById('fullBodyLabel').style.display = 'none';
+            document.getElementById('fullBodyPreview').innerHTML = `<img src="${e.target.result}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;">`;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
-        function handleItemCamera(input, idx) {
-            if(input.files[0]) {
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    tempItems[idx].img = e.target.result;
-                    input.parentElement.innerHTML = `<img src="${e.target.result}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;">`;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+function addItemRow() {
+    let idx = tempData.items.length;
+    tempData.items.push({ type: 'Shirt', name: '', img: null });
+    let div = document.createElement('div');
+    div.style.marginBottom = '16px';
+    div.innerHTML = `
+        <div class="camera-trigger" style="width:100%;padding:10px 20px;border:2px dashed #CCC;border-radius:12px;text-align:center;cursor:pointer;background:#FFF;font-size:14px;color:#999;margin-bottom:10px;" id="itemBox_${idx}">
+            <span id="itemLabel_${idx}">📷 Take photo</span>
+            <input type="file" accept="image/*" capture="environment" style="position:absolute;width:1px;height:1px;opacity:0;" onchange="handleItemFile(this, ${idx})">
+        </div>
+        <select onchange="tempData.items[${idx}].type = this.value" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;margin-bottom:8px;">
+            <option>Shirt</option><option>Hoodie</option><option>Pants</option><option>Shoes</option><option>Scarf</option><option>Hat</option>
+        </select>
+        <input type="text" placeholder="Item name (optional)" style="width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;" onchange="tempData.items[${idx}].name = this.value">
+    `;
+    document.getElementById('itemsContainer').appendChild(div);
+}
 
-        function openAdd() {
-            tempFullBody = null;
-            tempItems = [];
-            document.getElementById('itemsContainer').innerHTML = '';
-            document.getElementById('fullBodyLabel').style.display = 'inline';
-            document.getElementById('fullBodyPreview').innerHTML = '';
-            document.getElementById('addScreen').classList.add('active');
-        }
-        function closeAdd() { document.getElementById('addScreen').classList.remove('active'); }
+function handleItemFile(input, idx) {
+    if (input.files[0]) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            tempData.items[idx].img = e.target.result;
+            let boxId = 'itemBox_' + idx;
+            let labelId = 'itemLabel_' + idx;
+            document.getElementById(labelId).style.display = 'none';
+            document.getElementById(boxId).style.backgroundImage = `url(${e.target.result})`;
+            document.getElementById(boxId).style.backgroundSize = 'cover';
+            document.getElementById(boxId).style.borderStyle = 'solid';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
-        function saveOutfit() {
-            outfits.push({ fullBody: tempFullBody, items: tempItems, fav: false });
-            localStorage.setItem('md_v02', JSON.stringify(outfits));
-            closeAdd();
-            render();
-        }
+function openAdd() {
+    tempData = { fullBody: null, items: [] };
+    document.getElementById('itemsContainer').innerHTML = '';
+    document.getElementById('addScreen').style.display = 'block';
+    document.getElementById('fullBodyLabel').style.display = 'inline';
+    document.getElementById('fullBodyPreview').innerHTML = '';
+}
+function closeAdd() { document.getElementById('addScreen').style.display = 'none'; }
 
-        function toggleFav(i) { outfits[i].fav = !outfits[i].fav; localStorage.setItem('md_v02', JSON.stringify(outfits)); render(); }
-        function rm(i) { outfits.splice(i, 1); localStorage.setItem('md_v02', JSON.stringify(outfits)); render(); }
-        function showTab(t) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-            if(t==='outfits'){document.getElementById('outfits').classList.add('active'); document.querySelector('.tab:nth-child(1)').classList.add('active');}
-            else {document.getElementById('favs').classList.add('active'); document.querySelector('.tab:nth-child(2)').classList.add('active');}
-        }
+function saveOutfit() {
+    outfits.push({ fullBody: tempData.fullBody, items: tempData.items, fav: false });
+    localStorage.setItem('md_v02', JSON.stringify(outfits));
+    closeAdd();
+    render();
+}
 
-        function render() {
-            let oDiv = document.getElementById('outfits');
-            let fDiv = document.getElementById('favs');
-            oDiv.innerHTML = ''; fDiv.innerHTML = '';
-            if(outfits.length === 0) { oDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No outfits yet. Tap <b>+</b> to add one!</div>'; fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.</div>'; return; }
-            outfits.forEach((o, i) => {
-                let itemsHtml = '';
-                if(o.items && o.items.length > 0) {
-                    o.items.forEach(item => {
-                        itemsHtml += `<div class="item-row">
-                            <div class="upload-box">${item.img ? `<img src="${item.img}">` : '+'}</div>
-                            <input type="text" value="${item.name}" style="flex:1;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;">
-                        </div>`;
-                    });
-                }
-                let fullBodyHtml = '';
-                if(o.fullBody) {
-                    fullBodyHtml = `<div class="upload-box" style="width:100%;height:200px;margin-bottom:10px;"><img src="${o.fullBody}"></div>`;
-                }
-                let cardHtml = `<div class="card" onclick="this.classList.toggle('expanded')">
-                    <span class="card-star ${o.fav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFav(${i})">★</span>
-                    <div style="font-size:16px; font-weight:600;">Outfit ${i+1}</div>
-                    <div class="card-details">
-                        ${fullBodyHtml}
-                        ${itemsHtml}
-                        <button class="btn btn-secondary" onclick="event.stopPropagation(); rm(${i})">Remove Outfit</button>
-                    </div>
+function toggleFav(i) { outfits[i].fav = !outfits[i].fav; localStorage.setItem('md_v02', JSON.stringify(outfits)); render(); }
+function rm(i) { outfits.splice(i, 1); localStorage.setItem('md_v02', JSON.stringify(outfits)); render(); }
+
+function switchTab(t) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    if(t === 'outfits') {
+        document.getElementById('outfits-view').style.display = 'block';
+        document.getElementById('favourites-view').style.display = 'none';
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
+    } else {
+        document.getElementById('outfits-view').style.display = 'none';
+        document.getElementById('favourites-view').style.display = 'block';
+        document.querySelector('.tab:nth-child(2)').classList.add('active');
+    }
+}
+
+function render() {
+    let oDiv = document.getElementById('outfits-view');
+    let fDiv = document.getElementById('favourites-view');
+    oDiv.innerHTML = ''; fDiv.innerHTML = '';
+    if(outfits.length === 0) {
+        oDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No outfits yet.<br>Tap <b>+</b> to add one!</div>';
+        fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.</div>';
+        return;
+    }
+    outfits.forEach((o, i) => {
+        let itemsHtml = '';
+        if(o.items && o.items.length > 0) {
+            o.items.forEach(item => {
+                itemsHtml += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                    <div style="width:50px;height:50px;background:#F4F4F4;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${item.img ? `<img src="${item.img}" style="width:100%;height:100%;object-fit:cover;">` : '+'}</div>
+                    <div style="flex:1;font-size:14px;">${item.type}${item.name ? ': ' + item.name : ''}</div>
                 </div>`;
-                oDiv.innerHTML += cardHtml;
-                if(o.fav) fDiv.innerHTML += cardHtml;
             });
         }
+        let fullBodyHtml = '';
+        if(o.fullBody) {
+            fullBodyHtml = `<img src="${o.fullBody}" style="width:100%;height:auto;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:10px;">`;
+        }
+        let cardHtml = `<div class="card">
+            <span class="card-edit" onclick="openEdit(${i})">Open</span>
+            <span class="card-star ${o.fav ? 'active' : ''}" onclick="toggleFav(${i})">★</span>
+            <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Outfit ${i+1}</div>
+            ${fullBodyHtml}
+            ${itemsHtml}
+            <button class="btn btn-secondary" onclick="rm(${i})">Remove Outfit</button>
+        </div>`;
+        oDiv.innerHTML += cardHtml;
+        if(o.fav) fDiv.innerHTML += cardHtml;
+    });
+    if(fDiv.innerHTML === '') fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:40px;">No favourites yet.</div>';
+}
 
-        render();
-    </script>
+function openEdit(i) {
+    openAdd();
+    let o = outfits[i];
+    if(o.fullBody) {
+        document.getElementById('fullBodyLabel').style.display = 'none';
+        document.getElementById('fullBodyPreview').innerHTML = `<img src="${o.fullBody}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;">`;
+    }
+}
+
+render();
+</script>
 </body>
 </html>
