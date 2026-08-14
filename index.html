@@ -5,101 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyDrobe v0.1</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #FAFAFA; color: #111; margin: 0; padding: 20px; }
-        header { text-align: center; border-bottom: 1px solid #EAEAEA; padding-bottom: 16px; margin-bottom: 24px; }
-        h1 { font-size: 28px; font-weight: 800; margin: 0; }
-        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
-        .outfit-card { background: #FFF; border: 1px solid #EAEAEA; border-radius: 16px; margin-bottom: 16px; padding: 16px; cursor: pointer; }
-        .outfit-header { font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .outfit-body { display: none; margin-top: 16px; border-top: 1px solid #F0F0F0; padding-top: 16px; }
-        .outfit-card.expanded .outfit-body { display: block; }
-        .item-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
-        .upload-box { width: 60px; height: 60px; background: #F4F4F4; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 2px dashed #CCC; cursor: pointer; overflow: hidden; flex-shrink: 0; }
+        :root { --bg: #FAFAFA; --card: #FFF; --text: #111; --sub: #666; --border: #EAEAEA; --accent: #111; }
+        body { margin: 0; font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 70px; }
+        header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        h1 { margin: 0; font-size: 24px; font-weight: 800; }
+        .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0; z-index: 100; }
+        .tab-btn { background: none; border: none; font-size: 16px; font-weight: 600; color: var(--sub); cursor: pointer; flex: 1; text-align: center; }
+        .tab-btn.active { color: var(--accent); }
+        .view { display: none; padding: 16px 20px; }
+        .view.active { display: block; }
+        .outfit-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; position: relative; }
+        .outfit-card .star { position: absolute; top: 16px; right: 16px; font-size: 20px; cursor: pointer; color: var(--sub); }
+        .outfit-card .star.active { color: #FFD700; }
+        .outfit-details { display: none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+        .outfit-card.expanded .outfit-details { display: block; }
+        .item-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .upload-box { width: 50px; height: 50px; background: #F4F4F4; border-radius: 8px; border: 1px dashed #CCC; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; flex-shrink: 0; }
         .upload-box img { width: 100%; height: 100%; object-fit: cover; }
-        .item-input { flex: 1; padding: 12px; border: 1px solid #EAEAEA; border-radius: 10px; font-size: 14px; background: #FAFAFA; }
-        .delete-btn { background: #F4F4F4; color: #111; border: none; padding: 10px; border-radius: 10px; font-size: 14px; width: 100%; margin-top: 8px; cursor: pointer; }
-        .add-btn { background: #111; color: #FFF; border: none; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 600; width: 100%; text-align: center; margin-bottom: 24px; cursor: pointer; }
-        footer { text-align: center; font-size: 10px; color: #999; border-top: 1px solid #EAEAEA; padding-top: 16px; margin-top: 24px; }
-        .empty-msg { text-align: center; color: #999; font-size: 14px; margin-bottom: 20px; }
+        .item-input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
+        .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg); z-index: 200; padding: 20px; display: none; }
+        .add-screen.active { display: block; }
+        .add-screen h2 { margin-top: 0; }
+        .add-screen .actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { padding: 14px; border-radius: 10px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; flex: 1; }
+        .btn-primary { background: var(--accent); color: #FFF; }
+        .btn-secondary { background: #F4F4F4; color: var(--text); }
+        .fab { position: fixed; bottom: 80px; right: 20px; width: 50px; height: 50px; background: var(--accent); color: #FFF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 150; }
+        footer { text-align: center; font-size: 10px; color: var(--sub); padding: 20px; }
     </style>
 </head>
 <body>
     <header><h1>MyDrobe</h1></header>
-    <div class="section-title">My Favourites</div>
-    <div id="outfitList"></div>
-    <div class="add-btn" onclick="addOutfit()">+ Add Outfit</div>
+    <div id="outfits-view" class="view active"></div>
+    <div id="favourites-view" class="view"></div>
+    <div class="fab" onclick="openAddScreen()">+</div>
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('outfits')">Outfits</button>
+        <button class="tab-btn" onclick="switchTab('favourites')">My Favourites</button>
+    </div>
+    <div class="add-screen" id="addScreen">
+        <h2>Add Outfit</h2>
+        <div class="item-row">
+            <div class="upload-box" id="box_0">+</div>
+            <input type="text" class="item-input" id="name_0" placeholder="Item 1 name">
+        </div>
+        <div class="item-row">
+            <div class="upload-box" id="box_1">+</div>
+            <input type="text" class="item-input" id="name_1" placeholder="Item 2 name">
+        </div>
+        <div class="item-row">
+            <div class="upload-box" id="box_2">+</div>
+            <input type="text" class="item-input" id="name_2" placeholder="Item 3 name">
+        </div>
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="closeAddScreen()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveNewOutfit()">Save</button>
+        </div>
+    </div>
     <footer>MyDrobe © 2024 All Rights Reserved</footer>
-
     <script>
-        const STORAGE_KEY = 'mydrobe_v01';
+        let outfits = JSON.parse(localStorage.getItem('mydrobe_v02') || '[]');
+        let tempImages = [null, null, null];
 
-        function load() {
-            let outfits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            let list = document.getElementById('outfitList');
-            list.innerHTML = '';
+        function render() {
+            const oDiv = document.getElementById('outfits-view');
+            const fDiv = document.getElementById('favourites-view');
+            oDiv.innerHTML = '';
+            fDiv.innerHTML = '';
             if (outfits.length === 0) {
-                list.innerHTML = '<div class="empty-msg">No outfits yet. Tap + to add one!</div>';
-                return;
+                oDiv.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">No outfits yet. Tap + to add one!</div>';
             }
             outfits.forEach((o, i) => {
-                let card = document.createElement('div');
-                card.className = 'outfit-card';
-                card.onclick = function() { this.classList.toggle('expanded'); };
-
-                let itemsHtml = '';
-                for(let j=0; j<3; j++) {
-                    let name = o.items[j]?.name || '';
-                    let img = o.items[j]?.img || '';
-                    let boxContent = img ? `<img src="${img}">` : '+';
-                    itemsHtml += `<div class="item-row">
-                        <div class="upload-box" id="box_${i}_${j}" onclick="event.stopPropagation(); document.getElementById('file_${i}_${j}').click()">${boxContent}</div>
-                        <input type="text" class="item-input" value="${name}" placeholder="Item name (optional)" onchange="updateItem(${i}, ${j}, 'name', this.value)">
-                        <input type="file" id="file_${i}_${j}" accept="image/*" capture="environment" style="display:none" onchange="handleImage(this, ${i}, ${j})">
-                    </div>`;
-                }
-
-                itemsHtml += `<button class="delete-btn" onclick="event.stopPropagation(); deleteOutfit(${i})">Remove Outfit</button>`;
-                card.innerHTML = `<div class="outfit-header">Outfit ${i+1}: ${o.name} <span style="font-size:12px; color:#999">▼</span></div><div class="outfit-body">${itemsHtml}</div>`;
-                list.appendChild(card);
+                oDiv.appendChild(createCard(o, i));
+                if (o.fav) fDiv.appendChild(createCard(o, i));
             });
+            if (fDiv.innerHTML === '') {
+                fDiv.innerHTML = '<div style="text-align:center;color:#999;padding:20px;">No favourites yet.</div>';
+            }
         }
 
-        function addOutfit() {
-            let outfits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            outfits.push({ name: 'New Outfit', items: [{name: 'Top'}, {name: 'Bottom'}, {name: 'Shoes'}] });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(outfits));
-            load();
+        function createCard(o, i) {
+            let card = document.createElement('div');
+            card.className = 'outfit-card';
+            card.onclick = function(e) { this.classList.toggle('expanded'); };
+            let itemsHtml = '';
+            for (let j = 0; j < 3; j++) {
+                let name = o.items?.[j]?.name || '';
+                let img = o.items?.[j]?.img || '';
+                itemsHtml += `<div class="item-row">
+                    <div class="upload-box" id="box_${i}_${j}" onclick="event.stopPropagation(); document.getElementById('file_${i}_${j}').click()">
+                        ${img ? `<img src="${img}">` : '+'}
+                    </div>
+                    <input type="text" class="item-input" value="${name}" placeholder="Item name" onchange="updateItem(${i}, ${j}, 'name', this.value)">
+                    <input type="file" id="file_${i}_${j}" accept="image/*" capture="environment" style="display:none" onchange="handleImage(this, ${i}, ${j})">
+                </div>`;
+            }
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>Outfit ${i+1}</strong>
+                    <span class="star ${o.fav ? 'active' : ''}" onclick="toggleFav(event, ${i})">★</span>
+                </div>
+                <div class="outfit-details">
+                    ${itemsHtml}
+                    <button class="btn" style="background:#F4F4F4;color:#111;width:100%;margin-top:10px;" onclick="event.stopPropagation(); deleteOutfit(${i})">Remove</button>
+                </div>
+            `;
+            return card;
+        }
+
+        function toggleFav(e, i) {
+            e.stopPropagation();
+            outfits[i].fav = !outfits[i].fav;
+            localStorage.setItem('mydrobe_v02', JSON.stringify(outfits));
+            render();
         }
 
         function updateItem(oIndex, iIndex, field, value) {
-            let outfits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            if(outfits[oIndex].items[iIndex]) outfits[oIndex].items[iIndex][field] = value;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(outfits));
+            if (!outfits[oIndex].items) outfits[oIndex].items = [{}];
+            if (!outfits[oIndex].items[iIndex]) outfits[oIndex].items[iIndex] = {};
+            outfits[oIndex].items[iIndex][field] = value;
+            localStorage.setItem('mydrobe_v02', JSON.stringify(outfits));
         }
 
         function handleImage(input, oIndex, iIndex) {
             if (input.files && input.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function(e) {
-                    let outfits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-                    if(!outfits[oIndex].items[iIndex]) outfits[oIndex].items[iIndex] = {};
+                    if (!outfits[oIndex].items) outfits[oIndex].items = [{}];
+                    if (!outfits[oIndex].items[iIndex]) outfits[oIndex].items[iIndex] = {};
                     outfits[oIndex].items[iIndex].img = e.target.result;
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(outfits));
-                    let box = document.getElementById(`box_${oIndex}_${iIndex}`);
-                    box.innerHTML = `<img src="${e.target.result}">`;
+                    localStorage.setItem('mydrobe_v02', JSON.stringify(outfits));
+                    render();
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
         function deleteOutfit(i) {
-            let outfits = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             outfits.splice(i, 1);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(outfits));
-            load();
+            localStorage.setItem('mydrobe_v02', JSON.stringify(outfits));
+            render();
         }
 
-        load();
+        function switchTab(tab) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (tab === 'outfits') {
+                document.getElementById('outfits-view').classList.add('active');
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            } else {
+                document.getElementById('favourites-view').classList.add('active');
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            }
+        }
+
+        function openAddScreen() { document.getElementById('addScreen').classList.add('active'); }
+        function closeAddScreen() {
+            document.getElementById('addScreen').classList.remove('active');
+            document.querySelectorAll('.add-screen .item-input').forEach(i => i.value = '');
+            document.querySelectorAll('.add-screen .upload-box').forEach(b => b.innerHTML = '+');
+            tempImages = [null, null, null];
+        }
+
+        function saveNewOutfit() {
+            let items = [];
+            for(let j=0; j<3; j++) {
+                let name = document.getElementById(`name_${j}`).value;
+                let img = tempImages[j];
+                if (name || img) items.push({name, img});
+            }
+            if (items.length === 0) items = [{name: 'Top'}, {name: 'Bottom'}, {name: 'Shoes'}];
+            outfits.push({ name: 'New Outfit', items, fav: true });
+            localStorage.setItem('mydrobe_v02', JSON.stringify(outfits));
+            closeAddScreen();
+            render();
+        }
+
+        [0,1,2].forEach(j => {
+            let box = document.getElementById(`box_${j}`);
+            let fileInput = document.createElement('input');
+            fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.capture = 'environment';
+            fileInput.style.display = 'none';
+            fileInput.onchange = function() {
+                if (this.files && this.files[0]) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        tempImages[j] = e.target.result;
+                        box.innerHTML = `<img src="${e.target.result}">`;
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            };
+            box.onclick = function() { fileInput.click(); };
+        });
+
+        render();
     </script>
 </body>
 </html>
