@@ -40,7 +40,7 @@ footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border
     <h2 style="margin-top:0;padding:20px;">Add Outfit</h2>
     <div style="padding:0 20px;">
         <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Full Body Shot</label>
-        <input type="file" class="photo-input" accept="image/*" capture="environment" id="fullBodyInput">
+        <input type="file" class="photo-input" accept="image/*" id="fullBodyInput" placeholder="Select image">
         <div id="fullBodyPreview"></div>
         
         <label style="font-weight:600;font-size:14px;margin-bottom:8px;display:block;">Items</label>
@@ -78,7 +78,7 @@ function addItem() {
     photoInput.type = 'file';
     photoInput.className = 'photo-input';
     photoInput.accept = 'image/*';
-    photoInput.capture = 'environment';
+    photoInput.placeholder = 'Select image';
     photoInput.addEventListener('change', function() {
         if(this.files[0]) {
             let reader = new FileReader();
