@@ -18,12 +18,12 @@ h1 { margin: 0; font-size: 28px; font-weight: 800; }
 .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
 .btn-primary { background: #111; color: #FFF; }
 .btn-secondary { background: #F4F4F4; color: #111; }
-.btn-danger { background: #FFF; color: #111; border: 1px solid #EAEAEA; }
 .tabs { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: #FFF; border-top: 1px solid #EAEAEA; padding: 12px 0; }
 .tab { flex: 1; text-align: center; background: none; border: none; font-size: 15px; font-weight: 600; color: #999; cursor: pointer; padding: 8px; }
 .tab.active { color: #111; }
 footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; }
 .photo-input { width: 100%; padding: 24px; border: 2px dashed #CCC; border-radius: 12px; text-align: center; background: #F9F9F9; margin-bottom: 16px; font-size: 14px; color: #999; cursor: pointer; }
+.photo-input.selected { background: #E8F5E9; border-color: #4CAF50; }
 .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; padding: 20px; display: none; }
 </style>
 </head>
@@ -58,23 +58,24 @@ footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border
 
 <script>
 let outfits = JSON.parse(localStorage.getItem('md_v02') || '[]');
-
-// Store file references
-let fullBodyFile = null;
+let fullBodyDataUrl = null;
 let currentItems = [];
 
-// Full body photo
+// Full body photo - convert to data URL immediately
 document.getElementById('fullBodyInput').addEventListener('change', function() {
     if(this.files[0]) {
-        fullBodyFile = this.files[0];
-        let url = URL.createObjectURL(this.files[0]);
-        document.getElementById('fullBodyPreview').innerHTML = `<img src="${url}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;display:block;margin-bottom:16px;"><div style="font-size:12px;color:#4CAF50;text-align:center;margin-bottom:8px;">✓ Photo selected</div>`;
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            fullBodyDataUrl = e.target.result;
+            document.getElementById('fullBodyPreview').innerHTML = `<img src="${e.target.result}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;display:block;margin-bottom:16px;"><div style="font-size:12px;color:#4CAF50;text-align:center;margin-bottom:8px;">✓ Photo selected</div>`;
+        };
+        reader.readAsDataURL(this.files[0]);
         this.style.display = 'none';
     }
 });
 
 function addItem() {
-    let item = { type: 'Shirt', name: '', imgFile: null, img: null };
+    let item = { type: 'Shirt', name: '', img: null };
     currentItems.push(item);
     
     let row = document.createElement('div');
@@ -87,13 +88,17 @@ function addItem() {
     photoInput.placeholder = 'Select image';
     photoInput.addEventListener('change', function() {
         if(this.files[0]) {
-            item.imgFile = this.files[0];
-            let url = URL.createObjectURL(this.files[0]);
-            let img = document.createElement('img');
-            img.src = url;
-            img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-bottom:10px;';
-            this.parentNode.insertBefore(img, this);
-            this.style.display = 'none';
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                item.img = e.target.result;
+                let img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-bottom:10px;';
+                this.parentNode.insertBefore(img, this);
+                this.parentNode.innerHTML += '<div style="font-size:12px;color:#4CAF50;text-align:center;margin-bottom:8px;">✓ Photo selected</div>';
+                this.remove();
+            };
+            reader.readAsDataURL(this.files[0]);
         }
     });
     row.appendChild(photoInput);
@@ -116,7 +121,7 @@ function addItem() {
 
 function openAdd() {
     currentItems = [];
-    fullBodyFile = null;
+    fullBodyDataUrl = null;
     document.getElementById('outfitNameInput').value = '';
     document.getElementById('itemsContainer').innerHTML = '';
     document.getElementById('fullBodyPreview').innerHTML = '';
@@ -127,74 +132,17 @@ function openAdd() {
 function closeAdd() { document.getElementById('addScreen').style.display = 'none'; }
 
 function saveOutfit() {
-    let outfitName = document.getElementById('outfitNameInput').value || 'Outfit ' + (outfits.length + 1);
-    
-    // Collect all files to convert
-    let filesToConvert = [];
-    if(fullBodyFile) filesToConvert.push(fullBodyFile);
-    currentItems.forEach(item => {
-        if(item.imgFile) filesToConvert.push(item.imgFile);
+    // Everything is already converted to data URLs, so just save!
+    outfits.push({
+        name: document.getElementById('outfitNameInput').value || 'Outfit ' + (outfits.length + 1),
+        fullBody: fullBodyDataUrl,
+        items: currentItems,
+        fav: false
     });
     
-    // Convert images then save
-    if(filesToConvert.length === 0) {
-        // No images, save immediately
-        doSave();
-        return;
-    }
-    
-    // Convert each file to data URL
-    let convertedData = [];
-    let currentIndex = 0;
-    
-    function convertNext() {
-        if(currentIndex >= filesToConvert.length) {
-            // All converted, save!
-            doSave();
-            return;
-        }
-        
-        let file = filesToConvert[currentIndex];
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            convertedData.push(e.target.result);
-            currentIndex++;
-            convertNext();
-        };
-        reader.readAsDataURL(file);
-    }
-    
-    convertNext();
-    
-    function doSave() {
-        // Build the outfit with converted images
-        let fullBody = null;
-        if(fullBodyFile && convertedData.length > 0) {
-            fullBody = convertedData[0];
-            convertedData.shift();
-        }
-        
-        let itemsWithImages = [];
-        for(let i = 0; i < currentItems.length; i++) {
-            let item = currentItems[i];
-            itemsWithImages.push({
-                type: item.type,
-                name: item.name,
-                img: (item.imgFile && convertedData.length > 0) ? convertedData.shift() : null
-            });
-        }
-        
-        outfits.push({
-            name: outfitName,
-            fullBody: fullBody,
-            items: itemsWithImages,
-            fav: false
-        });
-        
-        localStorage.setItem('md_v02', JSON.stringify(outfits));
-        closeAdd();
-        render();
-    }
+    localStorage.setItem('md_v02', JSON.stringify(outfits));
+    closeAdd();
+    render();
 }
 
 function toggleFav(i) {
