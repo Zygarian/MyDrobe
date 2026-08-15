@@ -1,53 +1,37 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#A8D8F5"/>
-      <stop offset="100%" stop-color="#87CEEB"/>
+      <stop offset="0%" stop-color="#B0D4E8"/>
+      <stop offset="50%" stop-color="#87CEEB"/>
+      <stop offset="100%" stop-color="#6BB5E2"/>
     </linearGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E8F4FD"/>
+    </linearGradient>
+    <filter id="textShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.38  0 0 0 0 0.53  0 0 0 0 0.88  0 0 0 0.6 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
   
-  <!-- Baby blue circular background -->
+  <!-- Circular badge with gradient -->
   <circle cx="256" cy="256" r="240" fill="url(#bgGrad)"/>
-  <circle cx="256" cy="256" r="236" fill="none" stroke="#6BB5E8" stroke-width="4"/>
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#6BB5E2" stroke-width="4"/>
   
-  <!-- Coat hanger silhouette (subtle white in background) -->
-  <g fill="none" stroke="white" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity="0.7">
-    <!-- Hook -->
-    <path d="M 256 100 Q 256 80 256 60"/>
-    <path d="M 256 100 Q 256 80 256 60"/>
-    <circle cx="256" cy="60" r="12"/>
-    
-    <!-- Main bar -->
-    <path d="M 140 140 Q 256 100 372 140"/>
-    
-    <!-- Left curve -->
-    <path d="M 140 140 Q 120 180 160 200"/>
-    
-    <!-- Right curve -->
-    <path d="M 372 140 Q 392 180 352 200"/>
-    
-    <!-- Bottom bar -->
-    <path d="M 200 200 Q 256 230 312 200"/>
+  <!-- Subtle coat hanger silhouette -->
+  <g fill="none" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.4">
+    <circle cx="256" cy="80" r="14"/>
+    <line x1="256" y1="94" x2="256" y2="130"/>
+    <line x1="140" y1="130" x2="372" y2="130"/>
+    <path d="M 140 130 C 120 180, 160 220, 200 220"/>
+    <path d="M 372 130 C 392 180, 352 220, 312 220"/>
   </g>
   
-  <!-- Bubbly white "M" and "D" with baby blue outline -->
-  <g font-family="Georgia, serif" font-size="140" font-weight="bold" text-anchor="middle">
-    <!-- Baby blue outline (4 corners for glow effect) -->
-    <text x="256" y="380" fill="#6BB5E8">
-      <tspan dx="-4" dy="-4">M</tspan>
-      <tspan dx="4" dy="-4">M</tspan>
-      <tspan dx="-4" dy="4">M</tspan>
-      <tspan dx="4" dy="4">M</tspan>
-    </text>
-    <text x="256" y="460" fill="#6BB5E8">
-      <tspan dx="-4" dy="-4">D</tspan>
-      <tspan dx="4" dy="-4">D</tspan>
-      <tspan dx="-4" dy="4">D</tspan>
-      <tspan dx="4" dy="4">D</tspan>
-    </text>
-    
-    <!-- White fill -->
-    <text x="256" y="380" fill="white">M</text>
-    <text x="256" y="460" fill="white">D</text>
-  </g>
+  <!-- "M" and "D" with proper styling -->
+  <text x="256" y="400" font-family="Georgia, serif" font-size="150" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="white" filter="url(#textShadow)">MD</text>
 </svg>

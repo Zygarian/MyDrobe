@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
-"""Generate MyDrobe logo icons - nostalgic corporate style."""
 from PIL import Image, ImageDraw, ImageFont
+import math
 
 def create_logo(size):
-    # Create transparent image
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    # Create circular badge with baby blue gradient
+    img = Image.new('RGB', (size, size), (0, 0, 0))
     draw = ImageDraw.Draw(img)
     
-    cx = size // 2
-    cy = size // 2
-    r = size // 2 - 10
+    cx, cy = size // 2, size // 2
+    r = size // 2
     
-    # Draw circular badge
+    # Draw solid baby blue circle
     draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(168, 216, 255))
     
-    # Get font
+    # "MD" text
     font_size = size // 3
     try:
         font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", font_size)
@@ -30,10 +29,9 @@ def create_logo(size):
     tx = cx - tw // 2
     ty = cy - th // 2
     
-    # Baby blue outline
-    offset = 3
-    for dx in [-offset, 0, offset]:
-        for dy in [-offset, 0, offset]:
+    # Blue outline
+    for dx in [-2, 0, 2]:
+        for dy in [-2, 0, 2]:
             draw.text((tx + dx, ty + dy), text, fill=(93, 173, 226), font=font)
     
     # White fill
@@ -41,10 +39,6 @@ def create_logo(size):
     
     return img
 
-# Generate icons
-for size in [192, 256, 512]:
-    img = create_logo(size)
-    img.save(f'/tmp/mydrobe/icon-{size}.png')
-    print(f"Created {size}x{size} icon")
-
-print("All icons generated!")
+img = create_logo(512)
+img.save('/tmp/mydrobe/icon-512.png')
+print("Done")
