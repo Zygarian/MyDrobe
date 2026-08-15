@@ -23,6 +23,7 @@ h1 { margin: 0; font-size: 28px; font-weight: 800; }
 .tab.active { color: #111; }
 footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; }
 .photo-input { width: 100%; padding: 24px; border: 2px dashed #CCC; border-radius: 12px; text-align: center; background: #F9F9F9; margin-bottom: 16px; font-size: 14px; color: #999; cursor: pointer; }
+.photo-input.selected { background: #E8F5E9; border-color: #4CAF50; }
 .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; padding: 20px; display: none; }
 </style>
 </head>
@@ -55,23 +56,27 @@ footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border
 
 <script>
 let outfits = JSON.parse(localStorage.getItem('md_v02') || '[]');
-let tempData = { fullBody: null, items: [] };
 
-// Full body photo
+// Store full body file
+let fullBodyFile = null;
+
+// Handle full body photo - show preview with object URL
 document.getElementById('fullBodyInput').addEventListener('change', function() {
     if(this.files[0]) {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            tempData.fullBody = e.target.result;
-            document.getElementById('fullBodyPreview').innerHTML = `<img src="${e.target.result}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;display:block;margin-bottom:16px;">`;
-        };
-        reader.readAsDataURL(this.files[0]);
+        fullBodyFile = this.files[0];
+        let url = URL.createObjectURL(this.files[0]);
+        document.getElementById('fullBodyPreview').innerHTML = `<img src="${url}" style="width:100px;height:150px;object-fit:cover;border-radius:10px;display:block;margin-bottom:16px;">`;
+        this.classList.add('selected');
+        this.style.display = 'none';
+        document.getElementById('fullBodyPreview').innerHTML += '<div style="font-size:12px;color:#4CAF50;text-align:center;margin-bottom:8px;">✓ Photo selected</div>';
     }
 });
 
+let currentItems = [];
+
 function addItem() {
-    let idx = tempData.items.length;
-    tempData.items.push({ type: 'Shirt', name: '', img: null });
+    let item = { type: 'Shirt', name: '', imgFile: null, img: null };
+    currentItems.push(item);
     
     let row = document.createElement('div');
     row.style.marginBottom = '16px';
@@ -83,16 +88,14 @@ function addItem() {
     photoInput.placeholder = 'Select image';
     photoInput.addEventListener('change', function() {
         if(this.files[0]) {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                tempData.items[idx].img = e.target.result;
-                let img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-bottom:10px;';
-                this.parentNode.insertBefore(img, this);
-                this.style.display = 'none';
-            };
-            reader.readAsDataURL(this.files[0]);
+            item.imgFile = this.files[0];
+            let url = URL.createObjectURL(this.files[0]);
+            let img = document.createElement('img');
+            img.src = url;
+            img.style.cssText = 'width:100px;height:100px;object-fit:cover;border-radius:10px;display:block;margin-bottom:10px;';
+            this.parentNode.insertBefore(img, this);
+            this.classList.add('selected');
+            this.style.display = 'none';
         }
     });
     row.appendChild(photoInput);
@@ -100,31 +103,65 @@ function addItem() {
     let select = document.createElement('select');
     select.style.cssText = 'width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;margin-bottom:8px;';
     select.innerHTML = '<option>Shirt</option><option>Hoodie</option><option>Pants</option><option>Shoes</option><option>Scarf</option><option>Hat</option>';
-    select.addEventListener('change', function() { tempData.items[idx].type = this.value; });
+    select.addEventListener('change', function() { item.type = this.value; });
     row.appendChild(select);
     
     let nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.placeholder = 'Item name (optional)';
     nameInput.style.cssText = 'width:100%;padding:10px;border:1px solid #EAEAEA;border-radius:8px;font-size:14px;background:#FFF;';
-    nameInput.addEventListener('change', function() { tempData.items[idx].name = this.value; });
+    nameInput.addEventListener('change', function() { item.name = this.value; });
     row.appendChild(nameInput);
     
     document.getElementById('itemsContainer').appendChild(row);
 }
 
 function openAdd() {
-    tempData = { fullBody: null, items: [] };
+    currentItems = [];
+    fullBodyFile = null;
     document.getElementById('itemsContainer').innerHTML = '';
     document.getElementById('fullBodyPreview').innerHTML = '';
     document.getElementById('fullBodyInput').style.display = 'block';
+    document.getElementById('fullBodyInput').classList.remove('selected');
     document.getElementById('addScreen').style.display = 'block';
 }
 
 function closeAdd() { document.getElementById('addScreen').style.display = 'none'; }
 
-function saveOutfit() {
-    outfits.push({ fullBody: tempData.fullBody, items: tempData.items, fav: false });
+function convertToDataURL(file) {
+    return new Promise(function(resolve, reject) {
+        let reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = function() { reject(); };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function saveOutfit() {
+    // Convert all files to data URLs before saving
+    let items = [];
+    for(let item of currentItems) {
+        let imgData = null;
+        if(item.imgFile) {
+            try {
+                imgData = await convertToDataURL(item.imgFile);
+            } catch(e) {
+                console.log('Image conversion failed');
+            }
+        }
+        items.push({ type: item.type, name: item.name, img: imgData });
+    }
+    
+    let fullBody = null;
+    if(fullBodyFile) {
+        try {
+            fullBody = await convertToDataURL(fullBodyFile);
+        } catch(e) {
+            console.log('Full body image conversion failed');
+        }
+    }
+    
+    outfits.push({ fullBody: fullBody, items: items, fav: false });
     localStorage.setItem('md_v02', JSON.stringify(outfits));
     closeAdd();
     render();
