@@ -25,7 +25,7 @@ h1 { margin: 0; font-size: 28px; font-weight: 800; }
 .tab.active { color: #111; }
 footer { text-align: center; font-size: 10px; color: #999; padding: 16px; border-top: 1px solid #EAEAEA; }
 .photo-input { width: 100%; padding: 24px; border: 2px dashed #CCC; border-radius: 12px; text-align: center; background: #F9F9F9; margin-bottom: 16px; font-size: 14px; color: #999; cursor: pointer; }
-.photo-input.selected { background: #E8F5E9; border-color: #4CAF50; color: #4CAF50; }
+.photo-input.selected { background: #E8F5E9; border-color: #4CAF50; }
 .add-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #FAFAFA; z-index: 150; overflow-y: auto; padding: 20px; display: none; }
 </style>
 </head>
@@ -127,51 +127,18 @@ function openAdd() {
 
 function closeAdd() { document.getElementById('addScreen').style.display = 'none'; }
 
-function convertToDataURL(file) {
-    return new Promise(function(resolve) {
-        let reader = new FileReader();
-        reader.onload = function(e) { resolve(e.target.result); };
-        reader.readAsDataURL(file);
-    });
-}
-
-async function saveOutfit() {
-    let saveBtn = document.getElementById('saveOutfitBtn');
-    saveBtn.disabled = true;
-    saveBtn.innerText = 'Saving...';
-    
-    // Convert images
-    let fullBodyData = null;
-    if(fullBodyFile) {
-        fullBodyData = await convertToDataURL(fullBodyFile);
-    }
-    
-    let itemsWithImages = [];
-    for(let item of currentItems) {
-        let imgData = null;
-        if(item.imgFile) {
-            imgData = await convertToDataURL(item.imgFile);
-        }
-        itemsWithImages.push({
-            type: item.type,
-            name: item.name,
-            img: imgData
-        });
-    }
-    
+function saveOutfit() {
+    // Save immediately — don't wait for images
     outfits.push({
         name: document.getElementById('outfitNameInput').value || 'Outfit ' + (outfits.length + 1),
-        fullBody: fullBodyData,
-        items: itemsWithImages,
+        fullBody: null,
+        items: currentItems.map(item => ({ type: item.type, name: item.name, img: null })),
         fav: false
     });
     
     localStorage.setItem('md_v02', JSON.stringify(outfits));
     closeAdd();
     render();
-    
-    saveBtn.disabled = false;
-    saveBtn.innerText = 'Save Outfit';
 }
 
 function toggleFav(i) {
